@@ -1,0 +1,48 @@
+DROP TABLE IF EXISTS worker_type CASCADE;
+DROP SEQUENCE IF EXISTS worker_type_seq;
+DROP TABLE IF EXISTS worker CASCADE;
+DROP SEQUENCE IF EXISTS worker_seq;
+DROP TABLE IF EXISTS product CASCADE;
+DROP SEQUENCE IF EXISTS product_seq;
+
+CREATE SEQUENCE product_seq;
+
+CREATE TABLE product(
+	product_id BIGINT NOT NULL DEFAULT nextval('product_seq') PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
+	available_quantity BIGINT NOT NULL CHECK (available_quantity >= 0)
+);
+
+CREATE SEQUENCE worker_type_seq;
+
+CREATE TABLE worker_type(
+	worker_type_id BIGINT NOT NULL DEFAULT nextval('worker_type_seq') PRIMARY KEY,
+	name VARCHAR(50) NOT NULL
+);
+
+CREATE SEQUENCE worker_seq;
+
+CREATE TABLE worker(
+	worker_id BIGINT NOT NULL DEFAULT nextval('worker_seq') PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	password VARCHAR(255) NOT NULL,
+	email VARCHAR(50) NOT NULL UNIQUE,
+	enabled BOOLEAN NOT NULL,
+    worker_type_id BIGINT NOT NULL REFERENCES worker_type (worker_type_id)
+);
+
+insert into worker_type (worker_type_id, name)
+values (1, 'ROLE_ADMIN');
+insert into worker (worker_id, name, password, email,enabled, worker_type_id)
+values (nextval('worker_seq'), 'Jan', '$2a$10$frfqe9xPaK1c8oV/yw67l.T9wSzXusqLBrgetlgl1Vtra4TxmahBa', 'janko@gmail.com', true,
+        (select worker_type_id from worker_type where name = 'ROLE_ADMIN'));
+
+
+insert into product (product_id, name, available_quantity)
+values (nextval('product_seq'), 'Piec TURBO', 5);
+
+insert into product (product_id, name, available_quantity)
+values (nextval('product_seq'), 'Piec MINI', 8);
+
+insert into product (product_id, name , available_quantity)
+values (nextval('product_seq'), 'Piec MEDIUM' , 10);
